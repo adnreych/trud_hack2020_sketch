@@ -28,7 +28,7 @@ public class UidParser {
 		try {
 			CSVReader reader = new CSVReader(new FileReader(filePath), ';', '"', 1);
 			Set<JSONPositionModel> waitersId;
-			CSVReader waitersReader = new CSVReader(new FileReader("storekeepers.csv"), ';', '"', 1);
+			CSVReader waitersReader = new CSVReader(new FileReader("waiters.csv"), ';', '"', 1);
 			Set<String> waiterIds = new HashSet<>();
 			Set<String> empIds = new HashSet<>();
 		    String[] nextLine;
@@ -38,7 +38,7 @@ public class UidParser {
 				waiterIds.add(nextLine[0]);
 			}
 			
-			while ((nextLine = reader.readNext()) != null  && i++ < 500) { //   
+			while ((nextLine = reader.readNext()) != null  ) { //   && i++ < 1000
 				JSONPositionModel jsonPositionModel = new JSONPositionModel();
 				  if (nextLine != null) {
 					final String nl = nextLine[0];
@@ -57,9 +57,9 @@ public class UidParser {
 						jsonPositionModel.setId(i);
 						jsonPositionModel.setEmployerId(nextLine[0]);
 						if (waiterIds.contains(nextLine[0])) {
-							jsonPositionModel.setIsWaiter(false);
+							jsonPositionModel.setIsWaiter(true);
 							jsonPositionModel.setIsLoaderDriver(false);
-							jsonPositionModel.setIsStorekeeper(true);
+							jsonPositionModel.setIsStorekeeper(false);
 						} else {
 							jsonPositionModel.setIsWaiter(false);
 							jsonPositionModel.setIsLoaderDriver(false);
@@ -74,7 +74,7 @@ public class UidParser {
 								.collect(Collectors.toList());
 						jsonPositionModel.setRawData(rawData);
 						jsonPositionModel.setPositions(cvPositions);
-						if(jsonPositionModel.getIsStorekeeper()) {
+						if(jsonPositionModel.getIsWaiter()) {
 							jsonPositionModels.add(jsonPositionModel);
 							empIds.add(nl);
 						}					
