@@ -14,5 +14,6 @@ public class JSONPositionModel {
 	Boolean isStorekeeper;
 	Boolean isLoaderDriver;
 	List<CVPosition> positions;
+	List<String> rawData;
 
 }

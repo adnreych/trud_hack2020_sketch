@@ -14,7 +14,7 @@ public class CVPosition {
 	String position;
 	String organization;
 	String description;	
-	List<String> rawData;
+	String rawData;
 	Long start;
 	Long end;
 	

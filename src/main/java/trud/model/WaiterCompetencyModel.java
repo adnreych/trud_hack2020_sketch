@@ -8,15 +8,15 @@ import lombok.Data;
 @Data
 public class WaiterCompetencyModel {
 	
-	String work;
-	Boolean targetEdu;
-	String education;
-	Integer yearGraduate;
-	Boolean experience;
-	List<CVPosition> positions;
-	List<String> additionalSkills;
-	List<Map<String, String>> languages;
-	List<String> dishes;
-	List<String> timetable;
+	String q1;
+	Boolean q2;
+	String q3;
+	Integer q4;
+	Boolean q5;
+	List<CVPosition> q6;
+	List<String> q7;
+	List<String> q8;
+	List<String> q9;
+	List<String> q10;
 	
 }

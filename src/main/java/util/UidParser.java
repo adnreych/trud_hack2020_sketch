@@ -1,6 +1,5 @@
 package util;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -8,35 +7,38 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.opencsv.CSVReader;
 
 import trud.model.CVPosition;
 import trud.model.JSONPositionModel;
 
-public class CVModelParser {
+public class UidParser {
 	
 	DateFormat formatter = new SimpleDateFormat("yyyy-MM");
 	String datePatternString = "^[0-9]{4}\\-[0-9]{2}$";
+	
 	
 	public Set<JSONPositionModel> CVModelParse(String filePath) {
 		Set<JSONPositionModel> jsonPositionModels = new HashSet<JSONPositionModel>();
 		try {
 			CSVReader reader = new CSVReader(new FileReader(filePath), ';', '"', 1);
+			Set<JSONPositionModel> waitersId;
+			CSVReader waitersReader = new CSVReader(new FileReader("storekeepers.csv"), ';', '"', 1);
+			Set<String> waiterIds = new HashSet<>();
 			Set<String> empIds = new HashSet<>();
 		    String[] nextLine;
 		    
 		    Long i = 1L;
-			while ((nextLine = reader.readNext()) != null) { //  && i++ < 40
+			while ((nextLine = waitersReader.readNext()) != null) { 
+				waiterIds.add(nextLine[0]);
+			}
+			
+			while ((nextLine = reader.readNext()) != null  && i++ < 500) { //   
 				JSONPositionModel jsonPositionModel = new JSONPositionModel();
 				  if (nextLine != null) {
 					final String nl = nextLine[0];
@@ -54,24 +56,36 @@ public class CVModelParser {
 					} else {
 						jsonPositionModel.setId(i);
 						jsonPositionModel.setEmployerId(nextLine[0]);
+						if (waiterIds.contains(nextLine[0])) {
+							jsonPositionModel.setIsWaiter(false);
+							jsonPositionModel.setIsLoaderDriver(false);
+							jsonPositionModel.setIsStorekeeper(true);
+						} else {
+							jsonPositionModel.setIsWaiter(false);
+							jsonPositionModel.setIsLoaderDriver(false);
+							jsonPositionModel.setIsStorekeeper(false);
+						}
 						List<CVPosition> cvPositions = new ArrayList<>();
 						CVPosition cvPosition = parseDescription(nextLine);
 						cvPositions.add(cvPosition);
+						List<String> rawData = cvPositions
+								.stream()
+								.map(e -> e.getRawData())
+								.collect(Collectors.toList());
+						jsonPositionModel.setRawData(rawData);
 						jsonPositionModel.setPositions(cvPositions);
-						jsonPositionModels.add(jsonPositionModel);
-						empIds.add(nl);
-					}					
-					//System.out.println("line" + i);
-					//System.out.println("extLine length" + nextLine.length);
-					//System.out.println(Arrays.toString(nextLine));			    
+						if(jsonPositionModel.getIsStorekeeper()) {
+							jsonPositionModels.add(jsonPositionModel);
+							empIds.add(nl);
+						}					
+					}								    
 				  }
 				}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return jsonPositionModels;
-	}
+	}	
 	
 	public CVPosition parseDescription(String[] line) {
 		CVPosition cvPosition = new CVPosition();
@@ -94,7 +108,6 @@ public class CVModelParser {
 				cvPosition.getOrganization() + "\n" +
 				cvPosition.getDescription()
 				);
-		System.out.println("cvPosition " + cvPosition.toString());
 		} catch (ParseException e) {
 			e.printStackTrace();
 		} 
